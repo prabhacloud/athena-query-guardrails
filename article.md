@@ -2,7 +2,9 @@
 title: "Stop Expensive Athena Queries Before They Surprise You"
 subtitle: "A practical defense-in-depth pattern for retry-safe execution, result reuse, scan limits, and cost alerts"
 slug: "athena-query-guardrails-retry-reuse-scan-limits"
-status: "Draft"
+status: "Published"
+builder_url: "https://builder.aws.com/content/3LoVCXHbdopCkoozgCDpAs69Wjd/stop-expensive-athena-queries-before-they-surprise-you"
+linkedin_url: "https://www.linkedin.com/feed/update/urn:li:activity:7525094970567835648/"
 estimated_reading_time: "9 minutes"
 tags:
   - Amazon Athena

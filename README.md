@@ -1,8 +1,7 @@
 # Practical Athena Query Guardrails
 
-This repository accompanies the AWS Builder Center article:
-
-> **Stop Expensive Athena Queries Before They Surprise You**
+This repository accompanies the AWS Builder Center article
+[Stop Expensive Athena Queries Before They Surprise You](https://builder.aws.com/content/3LoVCXHbdopCkoozgCDpAs69Wjd/stop-expensive-athena-queries-before-they-surprise-you).
 
 It demonstrates four layers of protection:
 

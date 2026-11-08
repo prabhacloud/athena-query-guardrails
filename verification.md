@@ -90,7 +90,12 @@ Final read-only checks returned:
 
 ## Publishing state
 
-- No GitHub repository was created or modified.
-- No Builder Center draft was created or published.
-- No LinkedIn post was created or published.
+- Public GitHub repository:
+  https://github.com/prabhacloud/athena-query-guardrails
+- Published AWS Builder Center article:
+  https://builder.aws.com/content/3LoVCXHbdopCkoozgCDpAs69Wjd/stop-expensive-athena-queries-before-they-surprise-you
+- Published companion LinkedIn post:
+  https://www.linkedin.com/feed/update/urn:li:activity:7525094970567835648/
+- The article includes the GitHub source link. The LinkedIn post includes both
+  public links and the AWS Community Builder hashtags.
 
