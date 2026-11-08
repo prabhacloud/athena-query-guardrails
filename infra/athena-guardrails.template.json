@@ -1,0 +1,217 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Low-cost Amazon Athena query guardrails: encrypted results, enforced workgroup controls, and processed-bytes alerting.",
+  "Parameters": {
+    "WorkGroupName": {
+      "Type": "String",
+      "Default": "analytics-guarded",
+      "AllowedPattern": "^[A-Za-z0-9._-]{1,128}$",
+      "Description": "Name for the guarded Athena workgroup."
+    },
+    "BytesScannedCutoffPerQuery": {
+      "Type": "Number",
+      "Default": 1073741824,
+      "MinValue": 10485760,
+      "Description": "Hard per-query scan limit in bytes. Default: 1 GiB."
+    },
+    "HourlyProcessedBytesAlarmThreshold": {
+      "Type": "Number",
+      "Default": 10737418240,
+      "MinValue": 1,
+      "Description": "Alarm when the workgroup processes more than this many bytes in one hour. Default: 10 GiB."
+    },
+    "NotificationEmail": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Optional email address for alarm notifications."
+    }
+  },
+  "Conditions": {
+    "HasNotificationEmail": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "NotificationEmail"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "AthenaResultsBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "ExpireAthenaResults",
+              "Status": "Enabled",
+              "ExpirationInDays": 30,
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 7
+              }
+            }
+          ]
+        },
+        "OwnershipControls": {
+          "Rules": [
+            {
+              "ObjectOwnership": "BucketOwnerEnforced"
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+    "AthenaResultsBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "AthenaResultsBucket"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "DenyInsecureTransport",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "AthenaResultsBucket",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Sub": "${AthenaResultsBucket.Arn}/*"
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AthenaWorkGroup": {
+      "Type": "AWS::Athena::WorkGroup",
+      "Properties": {
+        "Name": {
+          "Ref": "WorkGroupName"
+        },
+        "Description": "Athena workgroup with enforced output, scan cutoff, and CloudWatch metrics.",
+        "State": "ENABLED",
+        "RecursiveDeleteOption": true,
+        "WorkGroupConfiguration": {
+          "BytesScannedCutoffPerQuery": {
+            "Ref": "BytesScannedCutoffPerQuery"
+          },
+          "EnforceWorkGroupConfiguration": true,
+          "PublishCloudWatchMetricsEnabled": true,
+          "ResultConfiguration": {
+            "EncryptionConfiguration": {
+              "EncryptionOption": "SSE_S3"
+            },
+            "OutputLocation": {
+              "Fn::Sub": "s3://${AthenaResultsBucket}/results/"
+            }
+          }
+        }
+      }
+    },
+    "AlarmTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "Athena query guardrail alerts"
+      }
+    },
+    "AlarmEmailSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Condition": "HasNotificationEmail",
+      "Properties": {
+        "Endpoint": {
+          "Ref": "NotificationEmail"
+        },
+        "Protocol": "email",
+        "TopicArn": {
+          "Ref": "AlarmTopic"
+        }
+      }
+    },
+    "ProcessedBytesAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Athena workgroup processed more bytes than the hourly threshold.",
+        "Namespace": "AWS/Athena",
+        "MetricName": "ProcessedBytes",
+        "Dimensions": [
+          {
+            "Name": "WorkGroup",
+            "Value": {
+              "Ref": "AthenaWorkGroup"
+            }
+          }
+        ],
+        "Statistic": "Sum",
+        "Period": 3600,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": {
+          "Ref": "HourlyProcessedBytesAlarmThreshold"
+        },
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "notBreaching",
+        "AlarmActions": [
+          {
+            "Ref": "AlarmTopic"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "WorkGroupName": {
+      "Value": {
+        "Ref": "AthenaWorkGroup"
+      }
+    },
+    "ResultsLocation": {
+      "Value": {
+        "Fn::Sub": "s3://${AthenaResultsBucket}/results/"
+      }
+    },
+    "AlarmTopicArn": {
+      "Value": {
+        "Ref": "AlarmTopic"
+      }
+    }
+  }
+}
+

@@ -1,0 +1,10 @@
+[project]
+name = "athena-query-guardrails"
+version = "0.1.0"
+description = "Retry-safe, budget-aware Amazon Athena query runner"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
