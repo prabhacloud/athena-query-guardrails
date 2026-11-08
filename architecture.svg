@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Layered Amazon Athena query guardrails architecture</title>
+  <desc id="desc">A calling application sends a query through a guarded Python client to an enforced Athena workgroup. Query results go to encrypted Amazon S3. Athena metrics feed a CloudWatch alarm and an SNS notification.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07182b"/>
+      <stop offset="100%" stop-color="#102f4f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8bd5ff"/>
+    </marker>
+    <style>
+      .title { font: 700 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+      .subtitle { font: 400 23px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #b8d7ee; }
+      .box-title { font: 700 27px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+      .body { font: 400 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d9ecf8; }
+      .label { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #8bd5ff; letter-spacing: 1px; }
+      .arrow { stroke: #8bd5ff; stroke-width: 5; fill: none; marker-end: url(#arrow); }
+      .card { stroke: #6cbbe8; stroke-width: 2; rx: 24; filter: url(#shadow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#background)"/>
+  <circle cx="1430" cy="110" r="230" fill="#1d6084" opacity="0.18"/>
+  <circle cx="110" cy="820" r="270" fill="#ff9900" opacity="0.09"/>
+
+  <text x="90" y="95" class="title">Athena query guardrails that fail safely</text>
+  <text x="90" y="138" class="subtitle">Retry safety, reuse, scan controls, and cost visibility—each at the right layer</text>
+
+  <rect x="90" y="250" width="280" height="260" fill="#173c5c" class="card"/>
+  <text x="125" y="300" class="label">CALLER</text>
+  <text x="125" y="350" class="box-title">Analytics job</text>
+  <text x="125" y="395" class="body">SQL + database</text>
+  <text x="125" y="428" class="body">Known workgroup</text>
+  <text x="125" y="461" class="body">Expected budget</text>
+
+  <rect x="505" y="215" width="390" height="330" fill="#164b68" class="card"/>
+  <text x="545" y="270" class="label">GUARDED CLIENT</text>
+  <text x="545" y="320" class="box-title">Python query runner</text>
+  <text x="545" y="370" class="body">– Stable request token</text>
+  <text x="545" y="407" class="body">– Result reuse window</text>
+  <text x="545" y="444" class="body">– Soft-budget monitor</text>
+  <text x="545" y="481" class="body">– Terminal-state evidence</text>
+
+  <rect x="1030" y="215" width="470" height="330" fill="#5b3c0c" class="card" stroke="#ffb84d"/>
+  <text x="1070" y="270" class="label" fill="#ffd28a">HARD BOUNDARY</text>
+  <text x="1070" y="320" class="box-title">Athena workgroup</text>
+  <text x="1070" y="370" class="body">– Enforced result location</text>
+  <text x="1070" y="407" class="body">– Per-query scan cutoff</text>
+  <text x="1070" y="444" class="body">– CloudWatch metrics</text>
+  <text x="1070" y="481" class="body">– Encrypted S3 results</text>
+
+  <path d="M 370 380 L 505 380" class="arrow"/>
+  <path d="M 895 380 L 1030 380" class="arrow"/>
+
+  <rect x="240" y="675" width="370" height="135" fill="#243d59" class="card"/>
+  <text x="280" y="727" class="box-title">Amazon CloudWatch</text>
+  <text x="280" y="767" class="body">ProcessedBytes / WorkGroup</text>
+
+  <rect x="760" y="675" width="315" height="135" fill="#4b294b" class="card"/>
+  <text x="800" y="727" class="box-title">Amazon SNS</text>
+  <text x="800" y="767" class="body">Actionable alert</text>
+
+  <path d="M 1235 545 C 1190 640, 610 610, 510 675" class="arrow"/>
+  <path d="M 610 742 L 760 742" class="arrow"/>
+
+  <text x="1110" y="842" class="subtitle">Defense in depth for serverless SQL</text>
+</svg>
+
